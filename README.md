@@ -2,12 +2,12 @@
 
 This is the repository for "Transfer Learning between non-Markovian RL Tasks
 through Semantic Representations of Temporal States". Several parts of the
-codebase are slighly modified versions of the code from (LTL2Action)[https://github.com/LTL2Action/LTL2Action/tree/master].
+codebase are slighly modified versions of the code from [LTL2Action](https://github.com/LTL2Action/LTL2Action/tree/master).
 
 ## Installing Dependencies
 
 We recommend using Python 3.6 to run this code. Required libraries can be
-installed with `pip install -r requirements.txt`. Additionally, the (MONA)[https://www.brics.dk/mona/index.html]
+installed with `pip install -r requirements.txt`. Additionally, the [MONA](https://www.brics.dk/mona/index.html)
 tool must be installed for `ltl2dfa` to work properly.
 
 ## Usage
