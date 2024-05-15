@@ -1,0 +1,26 @@
+seed: 42
+sampler: Eventually_1_5_1_4
+n_formulas: 10000
+n_train_formulas: 9000
+propositions: [a, b, c, d, e]
+
+characteristic_set:
+  remove_duplicates: true
+  remove_subtraces: true
+  max_total_symbols: 20000
+
+kernels:
+  random_5:
+    references: datasets/references/random_5
+    max_trace_length: 5
+  random_32:
+    references: datasets/references/random_32
+    max_trace_length: 5
+  e54_characteristic_5:
+    references: datasets/references/e54_5
+    traces: characteristic
+  e54_characteristic_32:
+    references: datasets/references/e54_32
+    traces: characteristic
+    n_processes: 16
+    chunksize: 100

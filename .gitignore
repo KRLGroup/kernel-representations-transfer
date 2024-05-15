@@ -1,0 +1,8 @@
+.DS_Store
+
+src/storage/
+src/archive/
+
+*.pkl
+
+**/__pycache__

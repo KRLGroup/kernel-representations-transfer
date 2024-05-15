@@ -1,0 +1,21 @@
+seed: 43
+sampler: Eventually_1_5_1_4
+n_formulas: 1000
+n_train_formulas: 1000 # TODO maybe remove this
+propositions: [a, b, c, d, e]
+
+disjoint_from: datasets/e54
+
+kernels:
+  random_5:
+    references: datasets/references/random_5
+    max_trace_length: 5
+  random_32:
+    references: datasets/references/random_32
+    max_trace_length: 5
+  e54_characteristic_5:
+    references: datasets/references/e54_5
+    traces: datasets/e54/characteristic_set.pkl
+  e54_characteristic_32:
+    references: datasets/references/e54_32
+    traces: datasets/e54/characteristic_set.pkl

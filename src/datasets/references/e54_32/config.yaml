@@ -1,0 +1,4 @@
+seed: 42
+n_references: 32
+sampler: Eventually_1_5_1_4
+propositions: [a, b, c, d, e]
