@@ -37,12 +37,12 @@ objects will be saved in that directory. `<component>` can be either:
 To ensure correct interaction with the dataset loading functions, the dataset
 directories should not contain any underscores in their name.
 
-### Analyzing Kernel Representations
+### Analyzing intra-task variation
 
-To analyze the quality of a kernel representation based on RSD, use the script
-`src/kernel_analysis.py` as
+To compuete and plot an histogram of the intra-task variation distribution, use
+the script `src/analysis_intra.py` as
 
-`python kernel_analysis.py <SPECS...> -x quality --bins <BINS> --alpha <ALPHA>`
+`python analysis_intra.py <SPECS...> -x quality --bins <BINS> --alpha <ALPHA>`
 
 where:
 
@@ -56,6 +56,23 @@ where:
 By default, this script also loads for each dataset also the dataset with the
 same name and a prefix `test`. This can be disabled with the `--exclude-test`
 flag.
+
+### Computing and storing inter-task variation
+
+To compute and store on disk the inter-task variation between two datasets, use
+the script `src/analysis_inter.py` as
+
+`python analysis_intra.py <DS1> <DS2> <KERNEL> <OUT_PATH>`
+
+where:
+
+- `<DS1>` and `<DS2>` are the names of dataset directories (assumed to be
+  contained in `src/datasets/`)
+
+- `<KERNEL>` is the name of the kernel representation to use for both datasets
+
+- `<OUT_PATH>` is the path to the output file, which will be stored in the
+  pickle binary format.
 
 ### Training Agents
 

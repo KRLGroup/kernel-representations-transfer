@@ -24,11 +24,11 @@ def get_variables(spec: str, load_test: bool):
         ds4 = ds[4] + ds_test[4]
     else:
         ds4 = ds[4]
-    qualities = np.array([rstd(k, axis=0).mean() for k in ds4])
+    intras = np.array([rstd(k, axis=0).mean() for k in ds4])
     n_states = [k.shape[0] for k in ds4]
 
     variables = {
-        'quality': qualities,
+        'intras': intras,
         'n_states': n_states,
     }
 
@@ -37,7 +37,7 @@ def get_variables(spec: str, load_test: bool):
 
 def main(*specs, x: str = None, y: str = None, alpha: float = 0.7, log: bool = False, bins: int = 10, exclude_test: bool = False):
     if x is None and y is None:
-        x, y = 'n_states', 'performance'
+        x, y = 'n_states', None
 
     variables = { spec: get_variables(spec, exclude_test) for spec in specs }
 
@@ -49,7 +49,7 @@ def main(*specs, x: str = None, y: str = None, alpha: float = 0.7, log: bool = F
             plt.hist(vars[x], bins=bins, label=k, alpha=alpha)
 
     titles = {
-        'quality': 'Mean RSD of kernel representations',
+        'intras': 'Mean RSD of kernel representations',
         'n_states': 'Number of states in the DFA',
     }
 
