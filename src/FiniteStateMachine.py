@@ -388,6 +388,7 @@ class MooreMachine(DFA):
     def __init__(self, arg1, arg2, arg3, reward = "acceptance", dictionary_symbols = None):
         super().__init__(arg1, arg2, arg3, dictionary_symbols)
         self.rewards = [100 for _ in range(self.num_of_states)]
+        self.calculate_absorbing_states()
         if reward == "distance":
             for s in range(self.num_of_states):
                 if self.acceptance[s]:
@@ -424,8 +425,170 @@ class MooreMachine(DFA):
         elif reward == "acceptance":
             for s in range(self.num_of_states):
                 if self.acceptance[s]:
-                    self.rewards[s] = 100
+                    self.rewards[s] = 1
                 else:
                     self.rewards[s] = 0
+        elif reward == "three_value_acceptance":
+            for q in range(self.num_of_states):
+                #neutral states
+                if q not in self.absorbing_states:
+                    self.rewards[q] = 0
+                else:
+                    #winning state
+                    if self.acceptance[q]:
+                        self.rewards[q] = 1
+                    #failure state
+                    else:
+                        self.rewards[q] = -1
         else:
-            raise Exception("Reward based on '{}' NOT IMPLEMENTED".format(reward))
+            raise Exception("Reward based on '{}' NOT IMPLEMENTED, choose between ['acceptance', 'three_value_acceptance', 'distance']".format(reward))
+
+    def calculate_absorbing_states(self):
+        self.absorbing_states = []
+        for q in range(self.num_of_states):
+            absorbing = True
+            for s in self.transitions[q].keys():
+                    absorbing = absorbing & (self.transitions[q][s] == q)
+            if absorbing:
+                self.absorbing_states.append(q)
+
+    def process_trace(self, trace):
+        return self.process_trace_from_state(trace, 0)
+
+    def process_trace_from_state(self, trace, state):
+        a = trace[0]
+        next_state = self.transitions[state][a]
+
+        if len(trace) == 1:
+            return next_state, self.rewards[next_state]
+
+        return self.process_trace_from_state(trace[1:], next_state)
+    def similarity_3_values(self, other, max_step):
+            #questa funziona ma non distingue formule che sono diverse su tracce su cui una delle due è 0
+            D = set([Trace([p]) for p in self.alphabet])
+            similarity = 0
+            norm_term =0
+
+            for time in range(1, max_step + 1):
+                next_D = set()
+                print("D: __________________", D)
+                for trace in D:
+                    t = trace.trace
+                    q1, o1 = self.process_trace(t)
+                    q2, o2 = other.process_trace(t)
+                    print(trace)
+                    print(o1)
+                    print(o2)
+                    if o1 == 0 or o2 == 0:
+                        candidates = set()
+                        del_cand_traces = 0
+                        for sym in self.alphabet:
+                            q1_prime = self.transitions[q1][sym]
+                            q2_prime = other.transitions[q2][sym]
+                            if q1 == q1_prime and q2 == q2_prime:
+                                del_cand_traces += 1
+                            else:
+                                candidates.add(Trace(t + [sym]))
+                        for c in candidates:
+                            c.delay_trace(del_cand_traces)
+                        print("candidates: ", candidates)
+                        next_D = next_D.union(candidates)
+                    elif o1 == o2:
+                        s = pow(len(self.alphabet), max_step - time)
+                        similarity += s
+                        norm_term += s
+                        print("+ ", s)
+                        if trace.delay:
+                            sum = 0
+                            for i in range(max_step - len(t) - 1):
+                                sum += pow(len(self.alphabet), i)
+                            s = trace.delay * sum
+                            similarity += s
+                            norm_term += s
+                            print("+ ", s)
+                    else:
+                        s = pow(len(self.alphabet), max_step - time)
+                        similarity -= s
+                        norm_term += s
+                        if trace.delay:
+                            sum = 0
+                            for i in range(max_step - len(t) - 1):
+                                sum = pow(len(self.alphabet), i)
+                            s = trace.delay * sum
+                            similarity -= s
+                            norm_term += s
+
+                D = next_D
+
+            #return similarity / float(pow(len(self.alphabet), max_step))
+            return similarity / norm_term
+
+    def similarity(self, other, max_step):
+
+            D = set([Trace([p]) for p in self.alphabet])
+            similarity = 0
+            #norm_term =0
+
+            for time in range(1, max_step + 1):
+                next_D = set()
+                print("D: __________________", D)
+                for trace in D:
+                    t = trace.trace
+                    q1, o1 = self.process_trace(t)
+                    q2, o2 = other.process_trace(t)
+                    print(trace)
+                    print(o1)
+                    print(o2)
+                    if q1 not in self.absorbing_states or q2 not in other.absorbing_states:
+                        candidates = set()
+                        del_cand_traces = 0
+                        for sym in self.alphabet:
+                            q1_prime = self.transitions[q1][sym]
+                            q2_prime = other.transitions[q2][sym]
+                            if q1 == q1_prime and q2 == q2_prime:
+                                del_cand_traces += 1
+                                if o1 == o2:
+                                    similarity += 1
+                                    print("+ 1")
+                                else:
+                                    similarity -= 1
+                                    print("- 1")
+                            else:
+                                candidates.add(Trace(t + [sym]))
+                        for c in candidates:
+                            c.delay_trace(del_cand_traces)
+                        print("candidates: ", candidates)
+                        next_D = next_D.union(candidates)
+                    else:
+                        if o1 == o2:
+                            s = pow(len(self.alphabet), max_step - time)
+                            similarity += s
+                            #norm_term += s
+                            print("+ ", s)
+                            if trace.delay:
+                                sum = 0
+                                for i in range(max_step - len(t) ):
+                                    sum += pow(len(self.alphabet), i)
+                                s = trace.delay * sum
+                                similarity += s
+                                #norm_term += s
+                                print("+ ", s)
+                        else:
+                            s = pow(len(self.alphabet), max_step - time)
+                            similarity -= s
+                            #norm_term += s
+                            print("- ", s)
+
+                            if trace.delay:
+                                sum = 0
+                                for i in range(max_step - len(t) ):
+                                    sum += pow(len(self.alphabet), i)
+                                s = trace.delay * sum
+                                similarity -= s
+                                #norm_term += s
+                                print("- ", s)
+
+                D = next_D
+
+            return similarity / float(pow(len(self.alphabet), max_step))
+            #return similarity / norm_term
