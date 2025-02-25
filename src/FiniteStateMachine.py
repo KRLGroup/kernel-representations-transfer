@@ -592,3 +592,15 @@ class MooreMachine(DFA):
 
             return similarity / float(pow(len(self.alphabet), max_step))
             #return similarity / norm_term
+
+class Trace:
+                def __init__(self, trace):
+                    self.trace = trace
+                    self.delay = 0
+                def delay_trace(self, delay):
+                    self.delay += delay
+                def __str__(self):
+                    return f"({self.trace}, {self.delay})"
+                def __repr__(self):
+                    return f"({self.trace}, {self.delay})"
+
